@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox spacing="10" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.testfx.MainPageController">
+    <padding>
+        <Insets bottom="20" left="20" right="20" top="20" />
+    </padding>
+
+    <children>
+        <!-- Buttons for managing items and borrowings -->
+        <HBox alignment="CENTER" spacing="10">
+            <Button onAction="#handleManageItemsAction" style="-fx-background-color: #ca2113;" text="Manage Items" textFill="WHITE" />
+            <Button onAction="#handleManageBorrowingsAction" text="Manage Borrowings" />
+        </HBox>
+
+        <!-- TableView for displaying items -->
+        <TableView fx:id="itemTable" prefWidth="1300">
+            <columns>
+                <TableColumn fx:id="colNomorInventaris" prefWidth="150" text="Nomor Inventaris">
+                    <cellValueFactory>
+                        <PropertyValueFactory property="nomorInventaris" />
+                    </cellValueFactory>
+                </TableColumn>
+                <TableColumn fx:id="colNamaAlat" prefWidth="150" text="Nama Alat">
+                    <cellValueFactory>
+                        <PropertyValueFactory property="namaAlat" />
+                    </cellValueFactory>
+                </TableColumn>
+                <TableColumn fx:id="colNomorSeri" prefWidth="150" text="Nomor Seri">
+                    <cellValueFactory>
+                        <PropertyValueFactory property="nomorSeri" />
+                    </cellValueFactory>
+                </TableColumn>
+                <TableColumn fx:id="colTahunBeli" prefWidth="100" text="Tahun Beli">
+                    <cellValueFactory>
+                        <PropertyValueFactory property="tahunBeli" />
+                    </cellValueFactory>
+                </TableColumn>
+                <TableColumn fx:id="colKondisi" prefWidth="100" text="Kondisi">
+                    <cellValueFactory>
+                        <PropertyValueFactory property="kondisi" />
+                    </cellValueFactory>
+                </TableColumn>
+                <TableColumn fx:id="colSpesifikasi" prefWidth="150" text="Spesifikasi">
+                    <cellValueFactory>
+                        <PropertyValueFactory property="spesifikasi" />
+                    </cellValueFactory>
+                </TableColumn>
+                <TableColumn fx:id="colStatus" prefWidth="100" style="-fx-alignment: CENTER;" text="Status">
+                    <cellValueFactory>
+                        <PropertyValueFactory property="status" />
+                    </cellValueFactory>
+                </TableColumn>
+                <TableColumn fx:id="colDeskripsi" prefWidth="200" text="Deskripsi">
+                    <cellValueFactory>
+                        <PropertyValueFactory property="deskripsi" />
+                    </cellValueFactory>
+                </TableColumn>
+                <TableColumn fx:id="colCategory" prefWidth="100" text="Category">
+                    <cellValueFactory>
+                        <PropertyValueFactory property="category" />
+                    </cellValueFactory>
+                </TableColumn>
+                <TableColumn fx:id="colManage" prefWidth="100" text="Manage">
+                    <!-- Use a custom cell factory for center alignment -->
+                    <cellFactory>
+                        <PropertyValueFactory property="manageButton" />
+                    </cellFactory>
+                </TableColumn>
+            </columns>
+        </TableView>
+      <HBox prefHeight="0.0" prefWidth="1300.0">
+         <children>
+            <Button mnemonicParsing="false" onAction="#handleRefreshAction" text="Refresh">
+               <HBox.margin>
+                  <Insets right="13.0" />
+               </HBox.margin>
+            </Button>
+      
+              <!-- Button for adding new items -->
+              <Button onAction="#handleAddItemAction" text="Add Item" />
+         </children>
+         <VBox.margin>
+            <Insets top="13.0" />
+         </VBox.margin>
+      </HBox>
+    </children>
+</VBox>

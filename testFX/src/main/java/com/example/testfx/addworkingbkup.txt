@@ -1,0 +1,401 @@
+// add controller
+package com.example.testfx;
+
+import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+
+public class AddController {
+
+    @FXML
+    private TextField txtNomorInventaris;
+
+    @FXML
+    private TextField txtNamaAlat;
+
+    @FXML
+    private TextField txtNomorSeri;
+
+    @FXML
+    private TextField txtTahunBeli;
+
+    @FXML
+    private TextField txtKondisi;
+
+    @FXML
+    private TextField txtSpesifikasi;
+
+    @FXML
+    private ComboBox<String> comboStatus;
+
+    @FXML
+    private TextArea txtDeskripsi;
+
+    @FXML
+    private ComboBox<String> comboCategory;
+
+    @FXML
+    private void handleAddItemAction() {
+        String nomorInventaris = txtNomorInventaris.getText();
+        String namaAlat = txtNamaAlat.getText();
+        String nomorSeri = txtNomorSeri.getText();
+        String tahunBeli = txtTahunBeli.getText();
+        String kondisi = txtKondisi.getText();
+        String spesifikasi = txtSpesifikasi.getText();
+        String status = comboStatus.getValue();
+        String deskripsi = txtDeskripsi.getText();
+        String category = comboCategory.getValue();
+
+        if (nomorInventaris.isEmpty() || namaAlat.isEmpty() || nomorSeri.isEmpty() || tahunBeli.isEmpty()
+                || kondisi.isEmpty() || spesifikasi.isEmpty() || status == null || deskripsi.isEmpty()
+                || category == null) {
+            showAlert("Error", "Please fill in all fields.");
+        } else {
+            boolean addItemSuccessful = addItem(nomorInventaris, namaAlat, nomorSeri, tahunBeli, kondisi, spesifikasi, status, deskripsi, category);
+            if (addItemSuccessful) {
+                showAlert("Add Item", "Item added successfully.");
+                clearFields();
+            } else {
+                showAlert("Add Item Failed", "An error occurred while adding the item. Please try again.");
+            }
+        }
+    }
+
+    private boolean addItem(String nomorInventaris, String namaAlat, String nomorSeri, String tahunBeli, String kondisi,
+                            String spesifikasi, String status, String deskripsi, String category) {
+        try {
+            URL url = new URL("http://localhost:3000/items/add"); // Adjusted URL for your item add endpoint
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("User-Agent", "Chrome/51.0.2704.103");
+            conn.setRequestProperty("Content-Type", "application/json");
+            conn.setDoOutput(true);
+
+            String jsonItem = String.format("{\"NomorInventaris\": \"%s\", \"NamaAlat\": \"%s\", \"NomorSeri\": \"%s\", \"TahunBeli\": \"%s\", \"Kondisi\": \"%s\", \"Spesifikasi\": \"%s\", \"Status\": \"%s\", \"Deskripsi\": \"%s\", \"Category\": \"%s\"}",
+                    nomorInventaris, namaAlat, nomorSeri, tahunBeli, kondisi, spesifikasi, status, deskripsi, category);
+            System.out.println("Sending JSON: " + jsonItem);  // Debug log
+
+            try (OutputStream os = conn.getOutputStream()) {
+                byte[] input = jsonItem.getBytes(StandardCharsets.UTF_8);
+                os.write(input, 0, input.length);
+            }
+
+            int responseCode = conn.getResponseCode();
+            System.out.println("Response Code: " + responseCode);
+
+            if (responseCode == HttpURLConnection.HTTP_CREATED) {
+                try (BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8))) {
+                    StringBuilder response = new StringBuilder();
+                    String responseLine;
+                    while ((responseLine = br.readLine()) != null) {
+                        response.append(responseLine.trim());
+                    }
+                    System.out.println("Response: " + response.toString());
+                    return true;
+                }
+            } else {
+                try (BufferedReader br = new BufferedReader(new InputStreamReader(conn.getErrorStream(), StandardCharsets.UTF_8))) {
+                    StringBuilder response = new StringBuilder();
+                    String responseLine;
+                    while ((responseLine = br.readLine()) != null) {
+                        response.append(responseLine.trim());
+                    }
+                    System.out.println("Error Response: " + response.toString());
+                }
+                return false;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            showAlert("Error", "An error occurred: " + e.getMessage());
+            return false;
+        }
+    }
+
+    private void showAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    private void clearFields() {
+        txtNomorInventaris.clear();
+        txtNamaAlat.clear();
+        txtNomorSeri.clear();
+        txtTahunBeli.clear();
+        txtKondisi.clear();
+        txtSpesifikasi.clear();
+        comboStatus.getSelectionModel().clearSelection();
+        txtDeskripsi.clear();
+        comboCategory.getSelectionModel().clearSelection();
+    }
+}
+
+// main page controller
+package com.example.testfx;
+
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.Stage;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ResourceBundle;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.io.IOException;
+
+public class MainPageController implements Initializable {
+
+    @FXML
+    private TableView<Item> itemTable;
+
+    @FXML
+    private TableColumn<Item, String> colNomorInventaris;
+
+    @FXML
+    private TableColumn<Item, String> colNamaAlat;
+
+    @FXML
+    private TableColumn<Item, String> colNomorSeri;
+
+    @FXML
+    private TableColumn<Item, Integer> colTahunBeli;
+
+    @FXML
+    private TableColumn<Item, String> colKondisi;
+
+    @FXML
+    private TableColumn<Item, String> colSpesifikasi;
+
+    @FXML
+    private TableColumn<Item, String> colStatus;
+
+    @FXML
+    private TableColumn<Item, String> colDeskripsi;
+
+    @FXML
+    private TableColumn<Item, String> colCategory;
+
+    private ObservableList<Item> itemList;
+
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        itemList = FXCollections.observableArrayList();
+
+        colNomorInventaris.setCellValueFactory(new PropertyValueFactory<>("NomorInventaris"));
+        colNamaAlat.setCellValueFactory(new PropertyValueFactory<>("NamaAlat"));
+        colNomorSeri.setCellValueFactory(new PropertyValueFactory<>("NomorSeri"));
+        colTahunBeli.setCellValueFactory(new PropertyValueFactory<>("TahunBeli"));
+        colKondisi.setCellValueFactory(new PropertyValueFactory<>("Kondisi"));
+        colSpesifikasi.setCellValueFactory(new PropertyValueFactory<>("Spesifikasi"));
+        colStatus.setCellValueFactory(new PropertyValueFactory<>("Status"));
+        colDeskripsi.setCellValueFactory(new PropertyValueFactory<>("Deskripsi"));
+        colCategory.setCellValueFactory(new PropertyValueFactory<>("Category"));
+
+        itemTable.setItems(itemList);
+
+        loadData();
+    }
+
+    private void loadData() {
+        try {
+            URL url = new URL("http://localhost:3000/items");
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+
+            int responseCode = conn.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                String inputLine;
+                StringBuilder response = new StringBuilder();
+
+                while ((inputLine = in.readLine()) != null) {
+                    response.append(inputLine);
+                }
+                in.close();
+
+                JSONObject jsonResponse = new JSONObject(response.toString().trim());
+                JSONArray jsonArray = jsonResponse.getJSONArray("data");
+
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    JSONObject jsonObject = jsonArray.getJSONObject(i);
+                    Item item = new Item(
+                            jsonObject.getString("NomorInventaris"),
+                            jsonObject.getString("NamaAlat"),
+                            jsonObject.getString("NomorSeri"),
+                            jsonObject.getInt("TahunBeli"),
+                            jsonObject.getString("Kondisi"),
+                            jsonObject.getString("Spesifikasi"),
+                            jsonObject.getString("Status"),
+                            jsonObject.getString("Deskripsi"),
+                            jsonObject.getString("Category")
+                    );
+                    itemList.add(item);
+                }
+            } else {
+                showAlert("Error", "Failed to fetch data from server. Response code: " + responseCode);
+            }
+        } catch (IOException e) {
+            showAlert("Error", "An error occurred while fetching data: " + e.getMessage());
+        }
+    }
+
+    private void showAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    @FXML
+    private void handleAddItemAction() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("add-view.fxml"));
+            Parent root = loader.load();
+            AddController addController = loader.getController(); // Accessing AddController instance
+            Stage stage = new Stage();
+            stage.setTitle("Add Item");
+            stage.setScene(new Scene(root));
+            stage.showAndWait(); // Show and wait for it to close
+
+            // After AddController window closes, refresh the table
+            itemList.clear(); // Clear current items
+            loadData(); // Reload data from server
+        } catch (IOException e) {
+            showAlert("Error", "Unable to load the Add Item page.");
+        }
+    }
+
+    @FXML
+    public void handleManageItemsAction() {
+        // Implementation for managing items (optional)
+    }
+
+    @FXML
+    public void handleManageBorrowingsAction() {
+        // Implementation for managing borrowings (optional)
+    }
+}
+
+// item
+package com.example.testfx;
+
+public class Item {
+    private String NomorInventaris;
+    private String NamaAlat;
+    private String NomorSeri;
+    private int TahunBeli;
+    private String Kondisi;
+    private String Spesifikasi;
+    private String Status;
+    private String Deskripsi;
+    private String Category;
+
+    public Item(String NomorInventaris, String NamaAlat, String NomorSeri, int TahunBeli, String Kondisi, String Spesifikasi, String Status, String Deskripsi, String Category) {
+        this.NomorInventaris = NomorInventaris;
+        this.NamaAlat = NamaAlat;
+        this.NomorSeri = NomorSeri;
+        this.TahunBeli = TahunBeli;
+        this.Kondisi = Kondisi;
+        this.Spesifikasi = Spesifikasi;
+        this.Status = Status;
+        this.Deskripsi = Deskripsi;
+        this.Category = Category;
+    }
+
+    public String getNomorInventaris() {
+        return NomorInventaris;
+    }
+
+    public void setNomorInventaris(String NomorInventaris) {
+        this.NomorInventaris = NomorInventaris;
+    }
+
+    public String getNamaAlat() {
+        return NamaAlat;
+    }
+
+    public void setNamaAlat(String NamaAlat) {
+        this.NamaAlat = NamaAlat;
+    }
+
+    public String getNomorSeri() {
+        return NomorSeri;
+    }
+
+    public void setNomorSeri(String NomorSeri) {
+        this.NomorSeri = NomorSeri;
+    }
+
+    public int getTahunBeli() {
+        return TahunBeli;
+    }
+
+    public void setTahunBeli(int TahunBeli) {
+        this.TahunBeli = TahunBeli;
+    }
+
+    public String getKondisi() {
+        return Kondisi;
+    }
+
+    public void setKondisi(String Kondisi) {
+        this.Kondisi = Kondisi;
+    }
+
+    public String getSpesifikasi() {
+        return Spesifikasi;
+    }
+
+    public void setSpesifikasi(String Spesifikasi) {
+        this.Spesifikasi = Spesifikasi;
+    }
+
+    public String getStatus() {
+        return Status;
+    }
+
+    public void setStatus(String Status) {
+        this.Status = Status;
+    }
+
+    public String getDeskripsi() {
+        return Deskripsi;
+    }
+
+    public void setDeskripsi(String Deskripsi) {
+        this.Deskripsi = Deskripsi;
+    }
+
+    public String getCategory() {
+        return Category;
+    }
+
+    public void setCategory(String Category) {
+        this.Category = Category;
+    }
+}

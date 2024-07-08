@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+
+<?import javafx.collections.FXCollections?>
+<?import java.lang.String?>
+<AnchorPane prefHeight="600.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.testfx.AddController">
+    <children>
+        <VBox alignment="CENTER" spacing="10.0" AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="20.0">
+            <children>
+                <Label text="Add Item" />
+                <VBox spacing="5.0">
+                    <children>
+                        <Label text="Nomor Inventaris" />
+                        <TextField fx:id="txtNomorInventaris" prefWidth="200.0" />
+                    </children>
+                </VBox>
+                <VBox spacing="5.0">
+                    <children>
+                        <Label text="Nama Alat" />
+                        <TextField fx:id="txtNamaAlat" prefWidth="200.0" />
+                    </children>
+                </VBox>
+                <VBox spacing="5.0">
+                    <children>
+                        <Label text="Nomor Seri" />
+                        <TextField fx:id="txtNomorSeri" prefWidth="200.0" />
+                    </children>
+                </VBox>
+                <VBox spacing="5.0">
+                    <children>
+                        <Label text="Tahun Beli" />
+                        <TextField fx:id="txtTahunBeli" prefWidth="200.0" />
+                    </children>
+                </VBox>
+                <VBox spacing="5.0">
+                    <children>
+                        <Label text="Kondisi" />
+                        <TextField fx:id="txtKondisi" prefWidth="200.0" />
+                    </children>
+                </VBox>
+                <VBox spacing="5.0">
+                    <children>
+                        <Label text="Spesifikasi" />
+                        <TextField fx:id="txtSpesifikasi" prefWidth="200.0" />
+                    </children>
+                </VBox>
+                <VBox spacing="5.0">
+                    <children>
+                        <Label text="Status" />
+                        <ComboBox fx:id="comboStatus" prefWidth="200.0">
+                            <items>
+                                <FXCollections fx:factory="observableArrayList">
+                                    <String fx:value="Available" />
+                                    <String fx:value="Not Available" />
+                                </FXCollections>
+                            </items>
+                        </ComboBox>
+                    </children>
+                </VBox>
+                <VBox spacing="5.0">
+                    <children>
+                        <Label text="Deskripsi" />
+                        <TextArea fx:id="txtDeskripsi" prefWidth="200.0" prefHeight="100.0" />
+                    </children>
+                </VBox>
+                <VBox spacing="5.0">
+                    <children>
+                        <Label text="Category" />
+                        <ComboBox fx:id="comboCategory" prefWidth="200.0">
+                            <items>
+                                <FXCollections fx:factory="observableArrayList">
+                                    <String fx:value="AVO/Multimeter" />
+                                    <String fx:value="Cables" />
+                                    <String fx:value="Generator" />
+                                    <String fx:value="Inverter" />
+                                    <String fx:value="MISC" />
+                                    <String fx:value="Other Measurement" />
+                                    <String fx:value="PLC" />
+                                    <String fx:value="Power Supplies" />
+                                    <String fx:value="Software" />
+                                    <String fx:value="Not Categorized" />
+                                </FXCollections>
+                            </items>
+                        </ComboBox>
+                    </children>
+                </VBox>
+                <Button minWidth="100.0" mnemonicParsing="false" onAction="#handleAddItemAction" text="Add Item" />
+            </children>
+        </VBox>
+    </children>
+</AnchorPane>
